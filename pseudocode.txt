@@ -1,0 +1,96 @@
+The goal of this assignment is to write a tool that will take a sam file as an input, remove PCR duplicates by keeping one sequence out of duplicated 
+sequences, and saves the output into a new sam file. All DNA molecules are labelled with Unique Molecular Identifiers (UMIs) which will allow to see if 
+duplicates originated from the same DNA molecule. In order to determine if a sequence is a PCR duplicate, I will need to check:
+1. If it has the same UMI as other sequences
+2. If it ha the same chromosome number and starting position as other sequences
+3. If it is reverse compliment to the other sequences
+4. If it is soft clipped
+
+Outline of the algorithm:
+sort the file by UMI (write a bash  command for sorting by a substring)
+create a temporary variable to store UMI(empty str)
+create a temporary list of non PCR duplicates: they have same UMI by differ by other checks
+check if a UMI is unique
+    yes -> store the line in the list, store UMI in the temp variable
+    no -> start comparing this line to the ones stored in the list
+        check if the chromosome position is the same 
+            yes -> continue checks
+            no -> save the line in the list
+            check if starting position is the same 
+                yes -> continue checks.
+                    call a function that looks at CIGAR and returns
+                    updated position
+                no -> save the line in the list
+                check for reverse complimentarity
+                    check if sequences are exacly the same starting from a position
+                    check if the bitwise flag 16 is the same True or False
+                    yes -> it is a duplicate don't add it to the list
+                    no -> add to the list
+    reached next unique UMI
+        write the lines into a new sam file
+        clear the temporary list of unique sequences
+        assign the temporary value of UMI to empty string again
+
+Another startegy would be to read the CIGAR string of each sequence, adjust the starting position
+according to soft clipping and save this new position into one of the sam file optional fields
+Since sam tools sort sequences by position, resulting column of adjusted positions will be sorted
+Then I can use similar approach to the above to do the checks and keeping unique sequences and 
+discarding the duplicates
+            
+
+def getargs() -> parser:
+"""Assignes command line arguments for running this script from command line. Returns parser object"""
+args to be used in this function
+-f, --file: designates absolute file path to sorted sam file
+-o, --outfile: designates absolute file path to sorted sam file
+-u, --umi: designates file containing the list of UMIs
+-h, --help: prints a USEFUL help message
+return parser.parse_args()
+
+
+#Note I probably don't need this function, but going to keep it here for now
+def reverse_compliment(seq: str) -> str:
+"""Takes sequence and returns reverse compliment of the sequence"""
+make a dict of possible nucleotide combinations (including N)
+create a list of to save nucleotides 
+start reading sequence from the end and look up corresponding combination in the dict
+save corresponding sequence in a list
+return joined list of nucleotides which will generate a reverse compliment sequence
+
+
+def create_umi_list(umi_doc: str) -> list:
+"""Takes reference to a umi document, returns a list of UMS's"""
+read umi text file and record each umi in a list
+return umi list
+
+
+def check_cigar(cigar: str, position: int) -> int:
+"""Takes and parses CIGAR string and returns updated leftmost position"""
+find if the read is forvard or reverse by calling check_comp()
+iterated over the CIGAR and find all numbers with S (no, 1, or 2)
+if the read is forward, subtract the  leftmost number before 'S' from current position
+if the read is reverse, add rightmost number next to S to the current position (I am not fully sure
+ about this)
+
+return the new position
+
+
+def check_comp(bwf1: str, bwf2: str) -> boolean:
+"""Takes and parses the bitwise flag and returns True if strands are the same, False otherwise"""
+Take both birwise flags and compare if position 16 is True or False for both
+return True or False boolean
+
+def write_sam(name: file handle, uniq_pcr: list):
+"""Takes a file handle and a list of unique sequences with the same UMIs and writes them into a 
+new file"""
+write the lines from the list into a file
+
+
+if __name__ == "__main__": 
+
+"""Main which will handle file processing and function calls"""
+
+
+
+
+
