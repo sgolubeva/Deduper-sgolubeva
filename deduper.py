@@ -52,10 +52,11 @@ def adjust_position(parsed_cigar: list, direction: bool, lm_position) -> int:
     and returns it"""
 
     if direction == True:
-       if parsed_cigar[0][1] == 'S':
+        if parsed_cigar[0][1] == 'S':
             parsed_cigar.pop(0)
-            for piece in parsed_cigar:
-                lm_position += piece[0]
+        for piece in parsed_cigar:
+            lm_position += piece[0]
+        #lm_position = lm_position - 1
     else:
         if parsed_cigar[0][1] == 'S':
             lm_position = lm_position - parsed_cigar[0][0]
@@ -72,7 +73,6 @@ if __name__ == "__main__":
     seen_chr: str  = '' # save the number of chromosome currently processed
     umi_set = create_umi_set(umis) # creates a set of UMIs 
 
-
     with open(sam_f, 'r') as sm, open(dedup_f, 'w') as dp:
         for line in sm:
             if line.startswith('@'):
@@ -80,7 +80,7 @@ if __name__ == "__main__":
             else:
                 spl_line = line.split('\t')
                 umi = spl_line[0].split(':')[-1]
-
+                
                 # Chek if a UMI is in UMI set, if it is, proceed with read comparison
                 if umi in umi_set: 
                     chrom = spl_line[2]
@@ -95,6 +95,9 @@ if __name__ == "__main__":
                     if chrom != seen_chr:
                         seen_chr = chrom
                         track_uniq_dict.clear()
+                        
+                        
+                    
                     if (umi, chrom, strand_dir, adj_pos) in track_uniq_dict:
                         track_uniq_dict[(umi,chrom, strand_dir, adj_pos)]+=1
 
