@@ -37,9 +37,8 @@ def parse_cigar(cigar_str:str) -> list:
 
     """Takes cigar string and parses it into tuple of a character and a number that goes with this
       character. Returns a list of tuples: first element is number, second is character"""
-    
     parsed = []
-    parse = re.findall('\d+[M|N|D|S]', cigar_str)
+    parse = re.findall('\d+[M|N|D|S]',cigar_str)
     for piece in parse:
         match = re.match('(\d+)([M|N|D|S])', piece)
         result = (int(match.group(1)), match.group(2))
