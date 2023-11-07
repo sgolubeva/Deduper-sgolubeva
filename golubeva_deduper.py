@@ -11,7 +11,7 @@ def get_args():
     parser.add_argument("-o", "--outfile", help="absolute path to sorted bam", required=True, type=str)
     parser.add_argument("-d", "--deduped", help="path to duplicates removed file", required=True, type=str)
     parser.add_argument("-s", "--summary", help="path to read counts summary file", required=True, type=str)
-    #parser.add_argument("-h", "--help")
+    parser.add_argument("-p", "--duplicates", help="path to a file storing PCR duplicates", required=True, type=str)
     return parser.parse_args()
 
 
@@ -75,19 +75,13 @@ def write_report(read_count_dict: dict, summary_file: str):
             sm.write(f'{category}\t{read_count_dict[category]}\n')
 
 
-if __name__ == "__main__":
-    args = get_args()
-    umis: str = args.umis # hold a link to the umi file
-    sam_f: str = args.outfile # holds path to a sorted sam file
-    dedup_f: str = args.deduped # holds path for writing into duplicate removed file
-    summary_f: str = args.summary# holds path to the read count summary file
-    track_uniq_dict: dict = {} # holds unique chr, leftmost position, strand direction
-    seen_chr: str  = '' # save the number of chromosome currently processed
-    read_count_dict = defaultdict(int) # stores unique, duplicate, unknown UMIs read count
+def main_file_process(sam_f: str, dedup_f: str, duplicates_f: str, seen_chr: str):
 
-    umi_set = create_umi_set(umis) # creates a set of UMIs 
+    """Takes file names for sorted sam, file to write unique reads, file to write duplicates, and seen
+    cromosome to keep track of the chromosome being processed. Processes sam and writes reads into 
+    the corresponding files"""
 
-    with open(sam_f, 'r') as sm, open(dedup_f, 'w') as dp:
+    with open(sam_f, 'r') as sm, open(dedup_f, 'w') as dp, open(duplicates_f, 'w') as dup:
         for line in sm:
             if line.startswith('@'):
                 dp.write(line)
@@ -115,6 +109,7 @@ if __name__ == "__main__":
                     if (umi, chrom, strand_dir, adj_pos) in track_uniq_dict: # duplicate
                         track_uniq_dict[(umi, chrom, strand_dir, adj_pos)]+=1
                         read_count_dict['duplicates_removed']+=1
+                        dup.write(line)
                         
                     else:
                         track_uniq_dict[(umi, chrom, strand_dir, adj_pos)] = 1 # unique
@@ -122,5 +117,20 @@ if __name__ == "__main__":
                         read_count_dict['unique_reads']+=1
                         read_count_dict[chrom]+=1
                 else:
-                    read_count_dict['unknown_umi']+=1 # count unknown UMI
-    write_report(read_count_dict, summary_f)            
+                    read_count_dict['unknown_umi']+=1 # count unknown UMI   
+
+
+if __name__ == "__main__":
+    args = get_args()
+    umis: str = args.umis # hold a link to the umi file
+    sam_f: str = args.outfile # holds path to a sorted sam file
+    dedup_f: str = args.deduped # holds path for writing into duplicate removed file
+    summary_f: str = args.summary# holds path to the read count summary file
+    track_uniq_dict: dict = {} # holds unique chr, leftmost position, strand direction
+    seen_chr: str  = '' # save the number of chromosome currently processed
+    read_count_dict = defaultdict(int) # stores unique, duplicate, unknown UMIs read count
+    duplicates_f: str = args.duplicates  #holds path to file storing duplicates
+
+    umi_set = create_umi_set(umis) # creates a set of UMIs 
+    main_file_process(sam_f, dedup_f, duplicates_f, seen_chr)  #processes sam file
+    write_report(read_count_dict, summary_f)  #create report summary           
