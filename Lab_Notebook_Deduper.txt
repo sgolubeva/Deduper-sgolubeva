@@ -44,11 +44,3 @@ slurm output for running my deduper script:
 
 
 
-1. Sort .sam file by chromosome number
-    1.1 samtools view -H <file_name>.sam > header. sam separate the header of the file and save in a new file
-    1.2 samtools view -F 4 <file_name>.sam > alignments.sam separate the alignments and save in a new file
-    1.3 sort -k3,3 -k4,4n alignments.sam > sorted_alignments.sam
-    sort -k3,3 -k4,4n alignments.sam > sorted_sequences_C1_PE_uniqAligned.sam
-    grep -v '^@' Dataset1.sam | grep -E '\s[3]\s'
-
-    \d+S to 
