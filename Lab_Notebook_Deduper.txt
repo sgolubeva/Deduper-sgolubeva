@@ -1,0 +1,46 @@
+The goal of the Deduper assignment is to remove PCR duplicates from a .sam file
+
+What is concidered a PCR duplicate?
+Reads that have the same UMI, chromosome number, strand directionality, leftmost position
+
+1. UMI is parced out from the sequence information (1st column)
+
+2. Chromosome number is column 3. I presorted the sam file before processing with:
+samtools sort -o --no-PG <file name to write> <file name to process>
+
+3. Strand directionality can be determined from the bitwisw flag. If position 16 in the bitwise flag
+is true, the strand is negative
+
+4. Leftmost position is determined by adjastment depending on strand directionality and soft-clipping
+if needed. 
+
+Soft clipping if present is always placed either as a first element of cigar string, last or both
+(never in the middle of cigar)
+If the strand is forward and leftmost soft clipping new leftmost position = old position - soft clipping number(S)
+
+If the strand is negative new leftmost position = old position + number of rightmost soft clipping(s) +
++ number of matches(M), deletions(D), skipped regions from reference(N)
+
+Main stats I obtained:
+# header lines 64
+# uniq reads 13719048
+# wrong UMIs 0
+# dups removed 4467362
+
+Additionally, my script generates a summary files with the main statistics and information per 
+chromosome. 
+
+
+
+
+
+
+
+1. Sort .sam file by chromosome number
+    1.1 samtools view -H <file_name>.sam > header. sam separate the header of the file and save in a new file
+    1.2 samtools view -F 4 <file_name>.sam > alignments.sam separate the alignments and save in a new file
+    1.3 sort -k3,3 -k4,4n alignments.sam > sorted_alignments.sam
+    sort -k3,3 -k4,4n alignments.sam > sorted_sequences_C1_PE_uniqAligned.sam
+    grep -v '^@' Dataset1.sam | grep -E '\s[3]\s'
+
+    \d+S to 
