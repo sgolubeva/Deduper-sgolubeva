@@ -30,8 +30,16 @@ Main stats I obtained:
 Additionally, my script generates a summary files with the main statistics and information per 
 chromosome. 
 
-
-
+slurm output for running my deduper script:
+        User time (seconds): 70.63
+        System time (seconds): 4.84
+        Percent of CPU this job got: 98%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 1:16.32
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 624076
 
 
 
