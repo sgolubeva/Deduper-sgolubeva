@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 """The purpose of this script is to remove PCR duplicates from single end sequencing sam file
-based on strandeness, UNIs, leftmost position adjastment from CIGAR string"""
+based on strandeness, UMIs, leftmost position adjastment from CIGAR string, Always use samtools sort
+before running this script"""
+
 import argparse
 import re
 from collections import defaultdict
 
 def get_args():
-    parser = argparse.ArgumentParser(description="global variables to set")
+
+    """Sets command line variables for running this script"""
+
+    parser = argparse.ArgumentParser(description="This script takes sorted by chromosome sam file.\
+                                      Removes PCR duplicates by comparing read umi, strand direction,\
+                                     adjasts the leftmost position for soft clipping from cigar string")
     parser.add_argument("-u", "--umis", help="provide a file with umis", required=True, type=str)
     parser.add_argument("-o", "--outfile", help="absolute path to sorted bam", required=True, type=str)
     parser.add_argument("-d", "--deduped", help="path to duplicates removed file", required=True, type=str)
